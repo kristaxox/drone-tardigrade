@@ -9,7 +9,7 @@ docker build -t kristaxox/drone-tardigrade .
 ```
 
 ## Usage
-Execute from the working directory:
+Execute from the working directory (note `DRY_RUN` envar):
 ```
 docker run --rm \
     -e DRY_RUN=true \
