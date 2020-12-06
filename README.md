@@ -1,6 +1,6 @@
 # drone-tardigrade
 
-drone-ci plugin for pushing artifacts to the Tardigrade network
+drone-ci [plugin](https://docs.drone.io/plugins/overview/) for pushing artifacts to the Tardigrade network
 
 ## Build
 Build the container with the following commands
