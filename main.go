@@ -18,6 +18,7 @@ import (
 const BufferSize = 1024
 
 var (
+	dryRun  = kingpin.Flag("dry-run", "dry run").Envar("DRY_RUN").Bool()
 	access  = kingpin.Flag("plugin-access", "tardigrade access").Envar("PLUGIN_ACCESS").Required().String()
 	bucket  = kingpin.Flag("plugin-bucket", "tardigrade bucket").Envar("PLUGIN_BUCKET").Required().String()
 	source  = kingpin.Flag("plugin-source", "source pattern").Envar("PLUGIN_SOURCE").Required().String()
@@ -70,27 +71,34 @@ func main() {
 		}
 		defer f.Close()
 
-		buffer := make([]byte, BufferSize)
+		if !(*dryRun) {
+			buffer := make([]byte, BufferSize)
 
-		upload, err := project.UploadObject(ctx, *bucket, key, nil)
-
-		for {
-			_, err := f.Read(buffer)
+			upload, err := project.UploadObject(ctx, *bucket, key, nil)
 			if err != nil {
-				if err != io.EOF {
-					logrus.WithError(err).Fatalln("unable to read file")
-				}
-				_, err = upload.Write(buffer)
-				if err != nil {
-					upload.Abort()
-					logrus.WithError(err).Fatalln("unable to upload file")
-				}
-				err = upload.Commit()
-				if err != nil {
-					logrus.WithError(err).Fatalln("unable to commit upload")
-				}
-				break
+				logrus.WithError(err).Fatalln("unable to create upload")
 			}
+
+			for {
+				_, err := f.Read(buffer)
+				if err != nil {
+					if err != io.EOF {
+						logrus.WithError(err).Fatalln("unable to read file")
+					}
+					_, err = upload.Write(buffer)
+					if err != nil {
+						upload.Abort()
+						logrus.WithError(err).Fatalln("unable to upload file")
+					}
+					err = upload.Commit()
+					if err != nil {
+						logrus.WithError(err).Fatalln("unable to commit upload")
+					}
+					break
+				}
+			}
+		} else {
+			logrus.Info("skipping file upload... dry run enabled")
 		}
 	}
 }
