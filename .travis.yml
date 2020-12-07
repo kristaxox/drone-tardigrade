@@ -13,12 +13,12 @@ services:
 
 script:
   - go test -v ./...
-  - docker build -t kristaxox/drone-tardigrade:${TRAVIS_COMMIT} .
+  - docker build -t kristaxox/${APPNAME}:${TRAVIS_COMMIT} .
 
 after_success:
   - if [[ "$TRAVIS_BRANCH" == "main" ]]; then
       docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD ;
-      docker push kristaxox/drone-tardigrade:${TRAVIS_COMMIT} ;
-      docker tag kristaxox/drone-tardigrade:${TRAVIS_COMMIT} kristaxox/drone-tardigrade:latest ;
-      docker push kristaxox/drone-tardigrade:latest ;
+      docker push kristaxox/${APPNAME}:${TRAVIS_COMMIT} ;
+      docker tag kristaxox/${APPNAME}:${TRAVIS_COMMIT} kristaxox/${APPNAME}:latest ;
+      docker push kristaxox/${APPNAME}:latest ;
     fi
